@@ -11,7 +11,13 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
+  "dependencies": {
+    "apollo-client": "^2.6.10",
+    "bootstrap": "^5.2.3",
+    "graphql": "^15.5.2",
+    "react-bootstrap": "^2.7.4"
+  },
   "devDependencies": {
     "concurrently": "^5.1.0"
   }
