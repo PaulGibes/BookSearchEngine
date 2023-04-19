@@ -1,5 +1,6 @@
 import { gql } from "@apollo/client";
 
+// This mutation includes logic for logging in a user. It takes in two variables, $email and $password, and sends them as arguments to the login mutation on the server. The mutation returns a token and the user information _id and username.
 export const LOGIN_USER = gql`
   mutation login($email: String!, $password: String!) {
     login(email: $email, password: $password) {

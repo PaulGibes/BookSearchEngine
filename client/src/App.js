@@ -32,7 +32,7 @@ const authLink = setContext((_, { headers }) => {
   };
 });
 
-// middle that creates a new cache for data received from the API.
+// middleware that creates a new cache for data received from the API.
 const client = new ApolloClient({
   // Set up client to execute the `authLink` middleware prior to making the request to our GraphQL API
   link: authLink.concat(httpLink),

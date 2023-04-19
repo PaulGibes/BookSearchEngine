@@ -1,18 +1,24 @@
+// import necessary dependencies
 import React, { useState } from "react";
 import { Form, Button, Alert } from "react-bootstrap";
 import { loginUser } from "../utils/API";
 import Auth from "../utils/auth";
 
+// defines a functional component
 const LoginForm = () => {
+  // declares state variables using the useState hook
+  // form data with initial values for email and password as empty strings
   const [userFormData, setUserFormData] = useState({ email: "", password: "" });
   const [validated] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
 
+  // handles the change event and updates userFormData
   const handleInputChange = (event) => {
     const { name, value } = event.target;
     setUserFormData({ ...userFormData, [name]: value });
   };
 
+  // handles form submit event.
   const handleFormSubmit = async (event) => {
     event.preventDefault();
 
@@ -23,9 +29,10 @@ const LoginForm = () => {
       event.stopPropagation();
     }
 
+    // Validates the form and if valid, makes an API call to loginUser function with the userFormData and handles the response.
     try {
       const response = await loginUser(userFormData);
-
+      // If the response is not successful, an error is thrown and the showAlert state is set to true to display an error message.
       if (!response.ok) {
         throw new Error("something went wrong!");
       }
@@ -45,6 +52,7 @@ const LoginForm = () => {
     });
   };
 
+  //renders the login form
   return (
     <>
       <Form noValidate validated={validated} onSubmit={handleFormSubmit}>

@@ -1,8 +1,8 @@
-const { Schema, model } = require('mongoose');
-const bcrypt = require('bcrypt');
+const { Schema, model } = require("mongoose");
+const bcrypt = require("bcrypt");
 
 // import schema from Book.js
-const bookSchema = require('./Book');
+const bookSchema = require("./Book");
 
 const userSchema = new Schema(
   {
@@ -15,7 +15,7 @@ const userSchema = new Schema(
       type: String,
       required: true,
       unique: true,
-      match: [/.+@.+\..+/, 'Must use a valid email address'],
+      match: [/.+@.+\..+/, "Must use a valid email address"],
     },
     password: {
       type: String,
@@ -33,9 +33,12 @@ const userSchema = new Schema(
 );
 
 // hash user password
-userSchema.pre('save', async function (next) {
-  if (this.isNew || this.isModified('password')) {
+// defines a pre-save middleware function that will be triggered before saving a document.
+userSchema.pre("save", async function (next) {
+  // checks if the document is new or if the 'password' field has been modified. The this keyword refers to the current document being saved.
+  if (this.isNew || this.isModified("password")) {
     const saltRounds = 10;
+    // generates a hash of the password field with the password as the input and the number of salt rounds. The hashed password is then assigned back to the password field of the document.
     this.password = await bcrypt.hash(this.password, saltRounds);
   }
 
@@ -48,10 +51,10 @@ userSchema.methods.isCorrectPassword = async function (password) {
 };
 
 // when we query a user, we'll also get another field called `bookCount` with the number of saved books we have
-userSchema.virtual('bookCount').get(function () {
+userSchema.virtual("bookCount").get(function () {
   return this.savedBooks.length;
 });
 
-const User = model('User', userSchema);
+const User = model("User", userSchema);
 
 module.exports = User;
