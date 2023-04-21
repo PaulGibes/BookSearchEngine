@@ -1,16 +1,12 @@
 import React from "react";
-// import components to handle react routing
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-// import components to manage GraphQL API requests and caching data
 import {
   ApolloClient,
+  InMemoryCache,
   ApolloProvider,
   createHttpLink,
-  InMemoryCache,
 } from "@apollo/client";
-// used to set authentication for GraphQL API requests
 import { setContext } from "@apollo/client/link/context";
-
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import SearchBooks from "./pages/SearchBooks";
 import SavedBooks from "./pages/SavedBooks";
 import Navbar from "./components/Navbar";
@@ -45,14 +41,11 @@ function App() {
       <Router>
         <>
           <Navbar />
-          <Routes>
-            <Route path="/" element={<SearchBooks />} />
-            <Route path="/saved" element={<SavedBooks />} />
-            <Route
-              path="*"
-              element={<h1 className="display-2">Wrong page!</h1>}
-            />
-          </Routes>
+          <Switch>
+            <Route exact path="/" component={SearchBooks} />
+            <Route exact path="/saved" component={SavedBooks} />
+            <Route render={() => <h1 className="display-2">Wrong page!</h1>} />
+          </Switch>
         </>
       </Router>
     </ApolloProvider>

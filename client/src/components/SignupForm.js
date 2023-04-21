@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Form, Button, Alert } from "react-bootstrap";
-
-import { createUser } from "../utils/API";
+import { useMutation } from "@apollo/client";
+import { CREATE_USER } from "../utils/mutations";
 import Auth from "../utils/auth";
 
 const SignupForm = () => {
@@ -15,7 +15,7 @@ const SignupForm = () => {
   const [validated] = useState(false);
   // set state for alert
   const [showAlert, setShowAlert] = useState(false);
-
+  const [createUser, { error, data }] = useMutation(CREATE_USER);
   // event handler for changes in the input fields
   const handleInputChange = (event) => {
     // the values of the input fields are captured and stored in userFormData using the spread operator (...)
@@ -36,16 +36,11 @@ const SignupForm = () => {
 
     // if it passes validation use createUser from utils/API module.
     try {
-      const response = await createUser(userFormData);
+      const { data } = await createUser({
+        variables: { ...userFormData },
+      });
 
-      if (!response.ok) {
-        throw new Error("something went wrong!");
-      }
-      // If it was not successful creating a user, throw an error (above) and show an alert (below)
-      // If the response is successful, the user object and token are logged to the console, and the Auth.login function is called to handle user authentication.
-      const { token, user } = await response.json();
-      console.log(user);
-      Auth.login(token);
+      Auth.login(data.createUser.token);
     } catch (err) {
       console.error(err);
       setShowAlert(true);

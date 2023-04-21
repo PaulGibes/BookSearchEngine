@@ -1,66 +1,70 @@
 const { AuthenticationError } = require("apollo-server-express");
+const { User, Book } = require("../models");
 const { signToken } = require("../utils/auth");
-const { User } = require("../models");
 
 // defines a number of resolvers that handle various mutations and queries
 const resolvers = {
   Query: {
     // retrieves the logged-in user's data (excluding the __v and password fields) from the User model. If the user is not authenticated, it throws an AuthenticationError
+    users: async () => {
+      return User.find().populate("savedBooks");
+    },
+    user: async (parent, { username }) => {
+      return User.findOne({ username }).populate("savedBooks");
+    },
     me: async (parent, args, context) => {
       if (context.user) {
-        data = await User.findOne({ _id: context.user._id }).select(
-          "-__v -password"
-        );
-        return data;
+        return User.findById({ _id: context.user._id }).populate("savedBooks");
       }
-      throw new AuthenticationError("You need to be logged in!");
+      throw new AuthenticationError("You are not logged in");
     },
   },
+
   Mutation: {
     // creates a new user in the User model with the provided username, email, and password.
-    addUser: async (parent, { username, email, password }) => {
+    createUser: async (parent, { username, email, password }) => {
       const user = await User.create({ username, email, password });
-      // generates a token
       const token = signToken(user);
+
       return { token, user };
     },
 
-    // retrieves a user from the User model by their email.
     login: async (parent, { email, password }) => {
       const user = await User.findOne({ email });
 
       if (!user) {
-        throw new AuthenticationError("Incorrect username or password!");
+        throw new AuthenticationError(
+          "No user account with that information found!"
+        );
       }
 
-      // checks if the provided password matches the user's password.
       const correctPw = await user.isCorrectPassword(password);
 
       if (!correctPw) {
-        throw new AuthenticationError("Incorrect username or password!");
+        throw new AuthenticationError("Incorrect password!");
       }
 
       const token = signToken(user);
-
       return { token, user };
     },
-
-    // adds a new book to the savedBooks field of the logged-in user.
-    saveBook: async (parent, { newBook }, context) => {
-      // checks if the user is authenticated using the context.user object. If the user is authenticated, it updates the User model by pushing the newBook object into the savedBooks array, and returns the updated user object.
+    saveBook: async (parent, { addingBook }, context) => {
+      // If context has a `user` property, that means the user executing this mutation has a valid JWT and is logged in
       if (context.user) {
         const updatedUser = await User.findByIdAndUpdate(
           { _id: context.user._id },
-          { $push: { savedBooks: newBook } },
-          { new: true }
+          {
+            $push: { savedBooks: addingBook },
+          },
+          {
+            new: true,
+          }
         );
         return updatedUser;
       }
+      // If user attempts to execute this mutation and isn't logged in, throw an error
+      throw new AuthenticationError("You need to be logged in!");
     },
-
-    // removes a book from the savedBooks field.
-    removeBook: async (parent, { bookId }, context) => {
-      // If the user is authenticated, it updates the User model by pulling the book with the given bookId from the savedBooks array, and returns the updated user object.
+    deleteBook: async (parent, { bookId }, context) => {
       if (context.user) {
         const updatedUser = await User.findByIdAndUpdate(
           { _id: context.user._id },

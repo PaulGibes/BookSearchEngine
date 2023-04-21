@@ -1,7 +1,7 @@
-// import necessary dependencies
 import React, { useState } from "react";
 import { Form, Button, Alert } from "react-bootstrap";
-import { loginUser } from "../utils/API";
+import { useMutation } from "@apollo/client";
+import { LOGIN } from "../utils/mutations";
 import Auth from "../utils/auth";
 
 // defines a functional component
@@ -11,6 +11,7 @@ const LoginForm = () => {
   const [userFormData, setUserFormData] = useState({ email: "", password: "" });
   const [validated] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
+  const [login, { error, data }] = useMutation(LOGIN);
 
   // handles the change event and updates userFormData
   const handleInputChange = (event) => {
@@ -31,15 +32,16 @@ const LoginForm = () => {
 
     // Validates the form and if valid, makes an API call to loginUser function with the userFormData and handles the response.
     try {
-      const response = await loginUser(userFormData);
+      const { data } = await login({
+        variables: { ...userFormData },
+      });
       // If the response is not successful, an error is thrown and the showAlert state is set to true to display an error message.
-      if (!response.ok) {
+      if (!data.login.user) {
         throw new Error("something went wrong!");
       }
 
-      const { token, user } = await response.json();
-      console.log(user);
-      Auth.login(token);
+      console.log(data.login.user);
+      Auth.login(data.login.token);
     } catch (err) {
       console.error(err);
       setShowAlert(true);

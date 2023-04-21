@@ -34,7 +34,8 @@ This website uses Google Books API search engine to search for and save books. A
 
 ## Collaborators
 
-No collaborators yet.
+Alex Sorbala - https://github.com/alex-sorbala
+Wesley Pavlov - https://github.com/WesleyPalov
 
 ## Contributing
 
